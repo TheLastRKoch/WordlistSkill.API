@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use app\Http\Controllers\Wordlist;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,12 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/test', function () {
+    return response()->json([
+        'response' => 'All good'
+    ]);
+});
+
 /*
 * PHP setup infomation
 */
@@ -27,10 +34,16 @@ Route::get('/info', function () {
     return view('phpinfo');
 });
 
+
+Route::get('Wordlist/New/{word}', function ($word){
+    $result = Wordlist::addNewWord();
+    var_dump($result);
+});
+
 /*
 * Add a new word with an example to the JSON
 */
-Route::get('Wordlist/New/{word}', function ($word) {
+Route::get('Wordlist/New2/{word}', function ($word) {
     //Read JsonFile
     $path = storage_path()."/app/db.json";
     $dbJsonFile = json_decode(file_get_contents($path));
