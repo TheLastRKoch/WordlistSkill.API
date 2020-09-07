@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Gist extends Model
 {
     public function getWordList(){
-        return "Hello Word";
+        return "Hello Word 2";
     }
 
     public function addWord(){

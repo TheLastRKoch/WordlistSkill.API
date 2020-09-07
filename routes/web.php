@@ -20,12 +20,6 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/test', function () {
-    return response()->json([
-        'response' => 'All good'
-    ]);
-});
-
 /*
 * PHP setup infomation
 */
@@ -35,10 +29,9 @@ Route::get('/info', function () {
 });
 
 
-Route::get('Wordlist/New/{word}', function ($word){
-    $result = Wordlist::addNewWord();
-    var_dump($result);
-});
+Route::get('Wordlist/New/{word}', [
+    'uses' => 'Wordlist@addNewWord'
+]);
 
 /*
 * Add a new word with an example to the JSON
