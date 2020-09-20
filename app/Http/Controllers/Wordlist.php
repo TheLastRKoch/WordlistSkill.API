@@ -17,15 +17,15 @@ class Wordlist extends Controller
     }
 
     public function getExample(){
-        return void;
+        return 0;
     }
 
     public function deleteWord(){
-        return void;
+        return 0;
     }
 
     public function getWordList(){
-        return void;
+        return 0;
     }
 
 }

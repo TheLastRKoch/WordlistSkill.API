@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use app\Http\Controllers\Wordlist;
+use app\Gist;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,14 +30,30 @@ Route::get('/info', function () {
 });
 
 
-Route::get('Wordlist/New/{word}', [
+Route::get('/test', function () {
+    $gist = new \App\Gist(env("GITHUB_APIURL"),env("GITHUB_GISTID"),env("GITHUB_TOCKEN"));
+    $body = array (
+        'files' => 
+        array (
+          'testing.json' => 
+          array (
+            'content' => 'This is a brand new test v3',
+          ),
+        ),
+    );
+    $body= json_encode($body);
+    return $gist->getGistContent();
+});
+
+
+Route::get('Wordlist/New2/{word}', [
     'uses' => 'Wordlist@addNewWord'
 ]);
 
 /*
 * Add a new word with an example to the JSON
 */
-Route::get('Wordlist/New2/{word}', function ($word) {
+Route::get('Wordlist/New/{word}', function ($word) {
     //Read JsonFile
     $path = storage_path()."/app/db.json";
     $dbJsonFile = json_decode(file_get_contents($path));
