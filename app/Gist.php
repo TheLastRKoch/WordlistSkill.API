@@ -11,12 +11,14 @@ class Gist extends Model
 {
     private $APIURL;
     private $GistID;
+    private $FileName;
     private $Token;
 
-    function __construct($APIURL,$GistID,$Token) 
+    function __construct($APIURL,$GistID,$FileName,$Token) 
     {
         $this->APIURL = $APIURL;
         $this->GistID = $GistID;
+        $this->FileName = $FileName;
         $this->Token = $Token;
     }
     
@@ -43,7 +45,21 @@ class Gist extends Model
 
     public function updateContent($GistContent)
     {
-    
+        $GistContent = json_encode(($GistContent));
+        
+        //Generate Github API Body
+        $body = array (
+            'files' => 
+            array (
+              $this->FileName => 
+              array (
+                'content' => $GistContent
+              ),
+            ),
+        );
+
+        $body = json_encode($body);
+
         $headers = [
             'Authorization' => 'Token '.$this->Token
         ];
@@ -55,7 +71,7 @@ class Gist extends Model
         $url = $this->APIURL.$this->GistID;
         
         $request = $client->request('PATCH',$url,[
-            'body'=>$GistContent
+            'body'=>$body
         ]);
     } 
     

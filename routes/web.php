@@ -24,144 +24,29 @@ Route::get('/', function () {
 /*
 * PHP setup infomation
 */
-Route::get('/info', function () {
-    $test = "";
+Route::get('phpinfo', function () {
     return view('phpinfo');
 });
 
-
-Route::get('/test', function () {
-    $gist = new \App\Gist(env("GITHUB_APIURL"),env("GITHUB_GISTID"),env("GITHUB_TOCKEN"));
-    $body = array (
-        'files' => 
-        array (
-          'testing.json' => 
-          array (
-            'content' => 'This is a brand new test v3',
-          ),
-        ),
-    );
-    $body= json_encode($body);
-    return $gist->getGistContent();
-});
-
-
-Route::get('Wordlist/New2/{word}', [
-    'uses' => 'Wordlist@addNewWord'
-]);
-
-/*
-* Add a new word with an example to the JSON
-*/
-Route::get('Wordlist/New/{word}', function ($word) {
-    //Read JsonFile
-    $path = storage_path()."/app/db.json";
-    $dbJsonFile = json_decode(file_get_contents($path));
-    
-    //Chech if the word is null or empty
-    if(is_null($word)){
-        return response()->json([
-            'response' => 'Error the word parameter is empty.'
-        ]);
-    }
-    
-    //Check if the word exist
-    if(in_array($word,array_column($dbJsonFile->Wordlist,"Word"))){
-        return response()->json([
-            'response' => 'Error the word already exist in the system.'
-        ]);
-    }
-    
-    //Try to get the example
-    try
-    {
-        //Get example from vocabulary.com
-        $url = "https://vocabulary.now.sh/word/".$word;
-        $requestJsonFile = json_decode(file_get_contents($url),true);
-        $example = $requestJsonFile['data'];
-    }
-    catch(Exception $e){
-        return response()->json([
-            'response' => 'The selected word is invalid or couldn\'t be found.',
-            'errors' => array("Something goes wrong with the URL request",$e->getMessage())        
-        ]);
-    }
-
-    //Generate newItem
-    $newItem = array("Word"=>$word, "Example"=>$example);
-
-    //Add new item
-    array_push($dbJsonFile->Wordlist,$newItem);
-    
-    //Save the new list
-    $path = storage_path()."/app/db.json";
-    file_put_contents($path,stripslashes(json_encode($dbJsonFile)));
-
-    return response()->json([
-        'response' => 'The word: '.$word.' has been save it successfully'        
+Route::group(['prefix' => 'Wordlist'], function () {
+    Route::get('Add/{word}', [
+        'uses' => 'WordlistController@addWord',
+        'as' => 'wordlist.new'
     ]);
-});
 
-Route::get('TestURL/{word}', function ($word) {
-    //Try to get the example
-    try
-    {
-        //Get example from vocabulary.com
-        $url = "https://vocabulary.now.sh/word/".$word;
-        var_dump(file_get_contents($url));
-        $jsonFile = json_decode(file_get_contents($url),true);
-        $example = $jsonFile['data'];
-    }
-    catch(Exception $e){
-        return response()->json([
-            'response' => 'The selected word is invalid or couldn\'t be found.',
-            'errors' => array("Something goes wrong with the URL request",$e->getMessage())        
-        ]);
-    }
-    
-});
-
-/*
-* Return a JSON with a example of the word
-*/
-Route::get('Wordlist/Example/{word}', function ($word) {
-    $url = "https://vocabulary.now.sh/word/".$word;
-    $jsonFile = json_decode(file_get_contents($url),true);
-    $Example = $jsonFile['data'];
-    return response()->json([
-        'word' => $word,
-        'example' => $Example
+    Route::get('Example/{word}', [
+        'uses' => 'WordlistController@getExample',
+        'as' => 'wordlist.example'
     ]);
-});
 
-/*
-* Deletes a word from the JSON File
-*/
-Route::get('Wordlist/Delete/{word}', function ($word) {
-    //Read JsonFile
-    $path = storage_path()."/app/db.json";
-    $jsonFile = json_decode(file_get_contents($path));
-    //Check if the word exist
-    if(in_array($word,array_column($jsonFile->Wordlist,"Word"))){
-        //Delete the word
-        $foundItem = array_search($word, array_column($jsonFile->Wordlist,"Word"));
-        unset($jsonFile->Wordlist[$foundItem]);
-        //Commit the changes
-        $path = storage_path()."/app/db.json";
-        file_put_contents($path,stripslashes(json_encode($jsonFile)));
-        return response()->json(['response' => 'The word: '.$word.' has been delete it successfully' ]);
-    }
-    return response()->json(['response' => 'Couldn\'t delete the word: '.$word.' doen\'t exist on the system' ]);
-});
+    Route::get('Remove/{word}', [
+        'uses' => 'WordlistController@removeWord',
+        'as' => 'wordlist.delete'
+    ]);
 
-/*
-* Returns the complete JSON file
-*/
-Route::get('Wordlist/List', function () {
-    //Read JsonFile
-    $path = storage_path()."/app/db.json";
-    $jsonFile = json_decode(file_get_contents($path));
-    return response()
-    ->json($jsonFile);
+    Route::get('List', [
+        'uses' => 'WordlistController@getList',
+        'as' => 'wordlist.list'
+    ]);
 });
 
